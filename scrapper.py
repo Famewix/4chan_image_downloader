@@ -4,7 +4,6 @@ import requests
 from requests.exceptions import MissingSchema, InvalidURL
 from bs4 import BeautifulSoup
 import os, sys
-# "https://boards.4chan.org/s/thread/20688172"
 
 URL = input("4chan thread URL: ")
 folder_name = input("Folder to save images: ")
