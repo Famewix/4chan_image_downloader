@@ -15,11 +15,10 @@ def download_image(image_url,  name):
     except HTTPError:
         print(f"{image_url} returned HTTP error.")
 
-def format_image_link(img_url):
-    img_url = img_url["src"]
-    img_url = img_url.replace("s.", '.')
-    img_url = f"https:{img_url}"
-    return img_url
+def format_image_link(image_tag):
+    image_tag = image_tag.a["href"]
+    image_tag = f"https:{image_tag}"
+    return image_tag
 
 
 def main(url, foldername):
@@ -29,17 +28,17 @@ def main(url, foldername):
         sys.exit()
 
     bs = BeautifulSoup(response.content, 'lxml')
-    images = bs.find_all("img", attrs={"loading":"lazy"})
+    div_with_image = bs.find_all("div", attrs={"class":"fileText"})
     try:
         os.mkdir(foldername)
     except FileExistsError:
         pass
     os.chdir(foldername)
 
-    for image in images:
-        image_src = format_image_link(image)
-        name_ = image_src.split('/')[4]
-        download_image(image_src, name_)
+    for tags in div_with_image:
+        image_url = format_image_link(tags)
+        name_ = image_url.split('/')[4]
+        download_image(image_url, name_)
 
 if __name__ == '__main__':
     main(URL, folder_name)
