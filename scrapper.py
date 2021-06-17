@@ -29,7 +29,7 @@ def format_image_link(image_tag):
 
 def display_status(div):
 	global count, img_num
-	print(f"{Fore.BLUE}Downloaded {count} files out of {len(div)} | remaining: {round(count/len(div)*100)}% {Fore.RESET}")
+	print(f"{Fore.BLUE}Downloaded {count} files out of {len(div)} | finished: {round(count/len(div)*100)}% {Fore.RESET}")
 
 def main(url, foldername):
 	response = requests.get(url)
