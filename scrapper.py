@@ -4,7 +4,6 @@ import requests
 from bs4 import BeautifulSoup
 import os, sys
 from colorama import Fore, init
-import keyboard
 import threading
 
 ###########################################
@@ -16,18 +15,19 @@ init(autoreset=True)
 
 URL = input("4chan thread URL: ")
 folder_name = input("Folder to save images: ")
-count = 0
+count = 1
+downloaded_files = 0
 
 
 def download_image(image_url,  name):
-	global count
+	global count, downloaded_files
 	try:
 		urlretrieve(image_url, name)
-		print(f"{Fore.GREEN}{image_url}{Fore.RESET} is downloaded")
-		count += 1
+		print(f"{count}. {Fore.GREEN}{image_url}{Fore.RESET} is downloaded")
+		downloaded_files += 1
 	except HTTPError:
 		print(f"{Fore.RED}{image_url}{Fore.RESET} returned HTTP error.")
-
+	count += 1
 
 def format_image_link(image_tag):
 	image_tag = image_tag.a["href"]
@@ -59,4 +59,4 @@ def main(url, foldername):
 if __name__ == '__main__':
 	main(URL, folder_name)
 	print('')
-	print(f"{Fore.BLUE}Downloaded {count} files.{Fore.RESET}")
+	print(f"{Fore.BLUE}Downloaded {downloaded_files} files.{Fore.RESET}")
