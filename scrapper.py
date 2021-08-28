@@ -41,7 +41,7 @@ def main(url, foldername):
 		print(f"Status: {response.status_code} — Invalid URL I guess.\n")
 		sys.exit()
 
-	bs = BeautifulSoup(response.content, 'lxml')
+	bs = BeautifulSoup(response.content, 'html.parser')
 	div_with_image = bs.find_all("div", attrs={"class":"fileText"})
 	try:
 		os.mkdir(foldername)
