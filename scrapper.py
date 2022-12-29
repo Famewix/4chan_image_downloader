@@ -4,7 +4,6 @@ import requests
 from bs4 import BeautifulSoup
 import os, sys
 from colorama import Fore, init
-import threading
 
 ###########################################
 # https://github.com/Famewix
