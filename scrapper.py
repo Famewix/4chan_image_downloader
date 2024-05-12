@@ -1,7 +1,6 @@
 import re
 from urllib.request import urlretrieve, urlopen
 from urllib.error import HTTPError
-import requests
 import os, sys
 import json
 from colorama import Fore, init
@@ -45,7 +44,11 @@ def sanitize_folder_name(name):
     return sanitized_name
 
 def fetch_json_from_api(url):
-    response = urlopen(url)
+    try:
+        response = urlopen(url)
+    except HTTPError:
+        print(f"url {url} returned a HTTP error. Bad url.")
+        sys.exit()
     data = response.read()
     json_data = json.loads(data)
     return json_data
