@@ -13,14 +13,12 @@ import argparse
 # all arguments
 arg_parser = argparse.ArgumentParser(prog='Scrape 4chan thread images', usage='%(prog)s [options]')
 arg_parser.add_argument('-u', '--url', type=str, help='4chan thread url', required=True, metavar='')
-arg_parser.add_argument('-f', '--fname', type=str, help='folder name', required=True, metavar='')
 
 args = arg_parser.parse_args()
 
 init(autoreset=True)
 
 URL = args.url
-folder_name = args.fname
 count = 1
 downloaded_files = 0
 total = 1
@@ -42,7 +40,7 @@ def format_image_link(image_tag):
     return image_tag
 
 
-def main(url, foldername):
+def main(url):
     ### https://boards.4chan.org/hr/thread/4551968
     global total, count
     thread_id = url.split("/")[-1]
@@ -53,6 +51,8 @@ def main(url, foldername):
 
     bs = BeautifulSoup(response.content, 'html.parser')
     div_with_image = bs.find_all("div", attrs={"class":"fileText"})
+    subject = bs.find('div', attrs={'class': 'postInfo desktop'}).find('span', attrs={'class': 'subject'}).text
+    foldername = subject
     try:
         os.mkdir(f"{foldername}_{thread_id}")
     except FileExistsError:
@@ -73,7 +73,7 @@ def main(url, foldername):
             count += 1
 
 if __name__ == '__main__':
-    main(URL, folder_name)
+    main(URL)
     print('')
     print(f"{Fore.BLUE}Downloaded {downloaded_files} files.{Fore.RESET}")
 
