@@ -1,8 +1,8 @@
-from urllib.request import urlretrieve
+from urllib.request import urlretrieve, urlopen
 from urllib.error import HTTPError
 import requests
-from bs4 import BeautifulSoup
 import os, sys
+import json
 from colorama import Fore, init
 import argparse
 
@@ -34,11 +34,31 @@ def download_image(image_url,  name):
         print(f"{Fore.RED}{image_url}{Fore.RESET} returned HTTP error.")
     count += 1
 
-def format_image_link(image_tag):
-    image_tag = image_tag.a["href"]
-    image_tag = f"https:{image_tag}"
-    return image_tag
+def fetch_json_from_api(url):
+    response = urlopen(url)
+    data = response.read()
+    json_data = json.loads(data)
+    return json_data
 
+def generate_image_urls(url):
+        # https://boards.4chan.org/hr/thread/4526451
+        # https://i.4cdn.org/[board]/[4chan%20image%20ID].[file%20extension]
+        BASE_URL = "https://a.4cdn.org/"
+        MEDIA_URL = "https://i.4cdn.org/"
+        image_urls = []
+        board, id = url.split('/')[-3], url.split('/')[-1]
+        api_url = BASE_URL + board + '/thread/' + id + '.json'
+        json_data = fetch_json_from_api(api_url)
+        current_thread_name = json_data.get('posts', 0)[0].get("sub", 0)
+        posts = json_data.get('posts', 0)
+        for post in posts:
+            image_id = post.get('tim', 0)
+            image_ext = post.get('ext', 0)
+            if not image_id:
+                continue
+            image_url = f"{MEDIA_URL}{board}/{image_id}{image_ext}"
+            image_urls.append(image_url)
+        return current_thread_name, image_urls
 
 def main(url):
     ### https://boards.4chan.org/hr/thread/4551968
@@ -49,26 +69,23 @@ def main(url):
         print(f"Status: {response.status_code} — Invalid URL I guess.\n")
         sys.exit()
 
-    bs = BeautifulSoup(response.content, 'html.parser')
-    div_with_image = bs.find_all("div", attrs={"class":"fileText"})
-    subject = bs.find('div', attrs={'class': 'postInfo desktop'}).find('span', attrs={'class': 'subject'}).text
-    foldername = subject
+
+    foldername, img_urls = generate_image_urls(url)
     try:
         os.mkdir(f"{foldername}_{thread_id}")
     except FileExistsError:
         pass
     os.chdir(f"{foldername}_{thread_id}")
     files = os.listdir()
-    total = len(div_with_image)
+    total = len(img_urls)
     print(f"{Fore.BLUE}Found {total} media files.{Fore.RESET}")
 
-    for tags in div_with_image:
-        image_url = format_image_link(tags)
-        name_ = image_url.split('/')[4]
+    for url in img_urls:
+        name_ = url.split('/')[4]
         if name_ not in files:
-            download_image(image_url, name_)
+            download_image(url, name_)
         else:
-            print(f"{count}.{Fore.GREEN} Skipping {image_url}.{Fore.RESET}")
+            print(f"{count}.{Fore.GREEN} Skipping {url}.{Fore.RESET}")
             total -= 1
             count += 1
 
