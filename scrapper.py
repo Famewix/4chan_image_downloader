@@ -12,8 +12,7 @@ import argparse
 
 # all arguments
 arg_parser = argparse.ArgumentParser(prog='Scrape 4chan thread images', usage='%(prog)s [options]')
-arg_parser.add_argument('-u', '--url', type=str, help='4chan thread url', metavar='')
-arg_parser.add_argument('-l', '--list',nargs='?', help='Threads listed in threads.txt', metavar='')
+arg_parser.add_argument('-u', '--url', type=str, help='4chan thread url')
 
 args = arg_parser.parse_args()
 
@@ -23,6 +22,13 @@ init(autoreset=True)
 count = 1
 downloaded_files = 0
 total = 1
+
+try:
+    os.mkdir("threads")
+except FileExistsError:
+    pass
+os.chdir('threads')
+
 current_dir = os.getcwd()
 
 
@@ -113,7 +119,7 @@ def main(url):
 if __name__ == '__main__':
     if args.url:
         main(args.url)
-    elif not args.url:
+    else:
         with open('threads.txt', "r") as f:
             for t_url in f.readlines():
                 print(f"{Fore.RED}################## DOWNLOADING thread {t_url}{Fore.RESET}")
@@ -124,8 +130,6 @@ if __name__ == '__main__':
                 downloaded_files = 0
                 total = 1
                 os.chdir(current_dir)
-    else:
-        raise Exception("Not url or --list was passed.")
     print('')
     print(f"{Fore.BLUE}Downloaded {downloaded_files} files.{Fore.RESET}")
 

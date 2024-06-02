@@ -1,4 +1,4 @@
 venv/
-scraped/
 test.py
 threads.txt
+threads/
